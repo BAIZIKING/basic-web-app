@@ -24,6 +24,16 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
+  if (query.toLowerCase().includes("plus") && query.toLowerCase().includes("multiplied")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length >= 3) {
+      const nums = numbers.map(Number);
+      const result = nums[0] + nums[1] * nums[2];
+      return result.toString();
+    }
+    return "";
+  }
+
   if (query.toLowerCase().includes("plus")) {
     const numbers = query.match(/\d+/g);
     if (numbers && numbers.length > 0) {
