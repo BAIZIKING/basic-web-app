@@ -87,7 +87,8 @@ export default function QueryProcessor(query: string): string {
     if (numbers && numbers.length >= 2) {
       const base = parseInt(numbers[0], 10);
       const exponent = parseInt(numbers[1], 10);
-      return Math.pow(base, exponent).toString();
+      const result = Math.pow(base, exponent);
+      return result.toLocaleString('en-US', { useGrouping: false });
     }
     return "";
   }
