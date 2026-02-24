@@ -56,8 +56,9 @@ export default function QueryProcessor(query: string): string {
   if (query.toLowerCase().includes("minus")) {
     const numbers = query.match(/\d+/g);
     if (numbers && numbers.length > 0) {
-      const sum = numbers.map(Number).reduce((a, b) => a - b, 0);
-      return sum.toString();
+      const nums = numbers.map(Number);
+      const difference = nums[0] - nums[1];
+      return difference.toString();
     }
     return "";
   }
