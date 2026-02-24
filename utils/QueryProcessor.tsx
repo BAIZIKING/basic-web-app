@@ -189,5 +189,62 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
+  if (query.toLowerCase().includes("scrabble score")) {
+    const letterValues: { [key: string]: number } = {
+      a: 1,
+      b: 3,
+      c: 3,
+      d: 2,
+      e: 1,
+      f: 4,
+      g: 2,
+      h: 4,
+      i: 1,
+      j: 8,
+      k: 5,
+      l: 1,
+      m: 3,
+      n: 1,
+      o: 1,
+      p: 3,
+      q: 10,
+      r: 1,
+      s: 1,
+      t: 1,
+      u: 1,
+      v: 4,
+      w: 4,
+      x: 8,
+      y: 4,
+      z: 10
+    };
+    
+    // Extract words from query (assuming format like "...scrabble score of [word]...")
+    const words = query.match(/\b[a-z]+\b/gi);
+    if (words && words.length > 0) {
+      // Get the word after "of" or the last word
+      const ofIndex = query.toLowerCase().indexOf("of");
+      let targetWord = "";
+      
+      if (ofIndex !== -1) {
+        const afterOf = query.substring(ofIndex + 2).match(/\b[a-z]+\b/i);
+        if (afterOf) {
+          targetWord = afterOf[0];
+        }
+      } else {
+        targetWord = words[words.length - 1];
+      }
+      
+      if (targetWord) {
+        const score = targetWord
+          .toLowerCase()
+          .split("")
+          .reduce((sum, letter) => sum + (letterValues[letter] || 0), 0);
+        return score.toString();
+      }
+    }
+    return "";
+  }
+
   return "";
 }
