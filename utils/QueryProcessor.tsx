@@ -91,5 +91,28 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
+  if (query.toLowerCase().includes("primes")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      const n = parseInt(numbers[0], 10);
+      if (n < 2) return "No primes";
+      let primes = [];
+      for (let i = 2; i <= n; i++) {
+        let isPrime = true;
+        for (let j = 2; j <= Math.sqrt(i); j++) {
+          if (i % j === 0) {
+            isPrime = false;
+            break;
+          }
+        }
+        if (isPrime) {
+          primes.push(i);
+        }
+      }
+      return primes.join(", ");
+    }
+    return "";
+  }
+
   return "";
 }
