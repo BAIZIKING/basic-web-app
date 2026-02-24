@@ -53,5 +53,43 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
+  if (query.toLowerCase().includes("minus")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      const sum = numbers.map(Number).reduce((a, b) => a - b, 0);
+      return sum.toString();
+    }
+    return "";
+  }
+
+  if (query.toLowerCase().includes("fibonacci")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      const n = parseInt(numbers[0], 10);
+      if (n <= 0) return "0";
+      if (n === 1) return "1";
+      let a = 0,
+        b = 1,
+        temp;
+      for (let i = 2; i <= n; i++) {
+        temp = a + b;
+        a = b;
+        b = temp;
+      }
+      return b.toString();
+    }
+    return "";
+  }
+
+  if (query.toLowerCase().includes("power")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length >= 2) {
+      const base = parseInt(numbers[0], 10);
+      const exponent = parseInt(numbers[1], 10);
+      return Math.pow(base, exponent).toString();
+    }
+    return "";
+  }
+
   return "";
 }
