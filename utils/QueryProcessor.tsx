@@ -1,44 +1,32 @@
 function evaluateArithmetic(query: string): string | null {
-  const numbers = query.match(/\d+/g);
-  if (!numbers || numbers.length === 0) return null;
-
   const lowerQuery = query.toLowerCase();
-  const operations: Array<{ op: string; symbol: string }> = [
-    { op: "multiplied", symbol: "*" },
-    { op: "divided", symbol: "/" },
-    { op: "plus", symbol: "+" },
-    { op: "minus", symbol: "-" },
-  ];
+  const numbers = query.match(/\d+/g);
+  if (!numbers || numbers.length < 2) return null;
 
+  // Extract operations and numbers in order
   const tokens: (number | string)[] = [];
-  let operationCount = 0;
+  let lastIndex = 0;
 
-  // Replace operation keywords with symbols
-  let processed = query;
-  for (const { op, symbol } of operations) {
-    const regex = new RegExp(op, "gi");
-    if (regex.test(processed)) {
-      operationCount++;
-      processed = processed.replace(regex, symbol);
-    }
-  }
-
-  // If no operations or only one number, not applicable
-  if (operationCount === 0 || numbers.length < 2) return null;
-
-  // Build token array: [num, op, num, op, num, ...]
-  let numIndex = 0;
-  let currentPos = 0;
-
-  for (const num of numbers) {
+  for (let i = 0; i < numbers.length; i++) {
+    const num = numbers[i];
     tokens.push(Number(num));
-    // Look for next operation
-    const nextNumIndex = processed.indexOf(num, currentPos);
-    if (nextNumIndex !== -1) {
-      currentPos = nextNumIndex + num.length;
-      const nextPart = processed.substring(currentPos).match(/^[+\-*/]/);
-      if (nextPart) {
-        tokens.push(nextPart[0]);
+
+    if (i < numbers.length - 1) {
+      // Find the operation between this number and the next
+      const numPos = query.indexOf(num, lastIndex);
+      lastIndex = numPos + num.length;
+      const betweenText = query.substring(lastIndex, query.indexOf(numbers[i + 1], lastIndex)).toLowerCase();
+
+      if (betweenText.includes("multiplied")) {
+        tokens.push("*");
+      } else if (betweenText.includes("divided")) {
+        tokens.push("/");
+      } else if (betweenText.includes("plus")) {
+        tokens.push("+");
+      } else if (betweenText.includes("minus")) {
+        tokens.push("-");
+      } else {
+        return null; // No recognized operation
       }
     }
   }
@@ -61,7 +49,7 @@ function evaluateArithmetic(query: string): string | null {
     if (tokens[i] === "+") {
       result += tokens[i + 1] as number;
     } else if (tokens[i] === "-") {
-      result += -(tokens[i + 1] as number);
+      result -= tokens[i + 1] as number;
     }
   }
 
