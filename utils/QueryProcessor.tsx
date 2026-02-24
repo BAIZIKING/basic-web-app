@@ -1,3 +1,73 @@
+function evaluateArithmetic(query: string): string | null {
+  const numbers = query.match(/\d+/g);
+  if (!numbers || numbers.length === 0) return null;
+
+  const lowerQuery = query.toLowerCase();
+  const operations: Array<{ op: string; symbol: string }> = [
+    { op: "multiplied", symbol: "*" },
+    { op: "divided", symbol: "/" },
+    { op: "plus", symbol: "+" },
+    { op: "minus", symbol: "-" },
+  ];
+
+  const tokens: (number | string)[] = [];
+  let operationCount = 0;
+
+  // Replace operation keywords with symbols
+  let processed = query;
+  for (const { op, symbol } of operations) {
+    const regex = new RegExp(op, "gi");
+    if (regex.test(processed)) {
+      operationCount++;
+      processed = processed.replace(regex, symbol);
+    }
+  }
+
+  // If no operations or only one number, not applicable
+  if (operationCount === 0 || numbers.length < 2) return null;
+
+  // Build token array: [num, op, num, op, num, ...]
+  let numIndex = 0;
+  let currentPos = 0;
+
+  for (const num of numbers) {
+    tokens.push(Number(num));
+    // Look for next operation
+    const nextNumIndex = processed.indexOf(num, currentPos);
+    if (nextNumIndex !== -1) {
+      currentPos = nextNumIndex + num.length;
+      const nextPart = processed.substring(currentPos).match(/^[+\-*/]/);
+      if (nextPart) {
+        tokens.push(nextPart[0]);
+      }
+    }
+  }
+
+  // Evaluate with proper order of operations
+  // First pass: handle * and /
+  for (let i = 1; i < tokens.length; i += 2) {
+    if (tokens[i] === "*") {
+      tokens.splice(i - 1, 3, (tokens[i - 1] as number) * (tokens[i + 1] as number));
+      i -= 2;
+    } else if (tokens[i] === "/") {
+      tokens.splice(i - 1, 3, (tokens[i - 1] as number) / (tokens[i + 1] as number));
+      i -= 2;
+    }
+  }
+
+  // Second pass: handle + and -
+  let result = tokens[0] as number;
+  for (let i = 1; i < tokens.length; i += 2) {
+    if (tokens[i] === "+") {
+      result += tokens[i + 1] as number;
+    } else if (tokens[i] === "-") {
+      result += -(tokens[i + 1] as number);
+    }
+  }
+
+  return result.toString();
+}
+
 export default function QueryProcessor(query: string): string {
   if (query.toLowerCase().includes("shakespeare")) {
     return (
@@ -24,14 +94,14 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
-  if (query.toLowerCase().includes("plus") && query.toLowerCase().includes("multiplied")) {
-    const numbers = query.match(/\d+/g);
-    if (numbers && numbers.length >= 3) {
-      const nums = numbers.map(Number);
-      const result = nums[0] + nums[1] * nums[2];
-      return result.toString();
-    }
-    return "";
+  // Check for complex arithmetic expressions
+  const hasMultipleOps =
+    (query.toLowerCase().includes("plus") || query.toLowerCase().includes("minus")) &&
+    (query.toLowerCase().includes("multiplied") || query.toLowerCase().includes("divided"));
+
+  if (hasMultipleOps) {
+    const result = evaluateArithmetic(query);
+    if (result !== null) return result;
   }
 
   if (query.toLowerCase().includes("plus")) {
