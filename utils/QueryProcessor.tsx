@@ -15,8 +15,22 @@ export default function QueryProcessor(query: string): string {
     return "yijin2";
   }
 
-  if (query.includes("62, 93, 45") && query.toLowerCase().includes("largest")) {
-    return "93";
+  if (query.toLowerCase().includes("largest")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      const largest = Math.max(...numbers.map(Number));
+      return largest.toString();
+    }
+    return "";
+  }
+
+  if (query.toLowerCase().includes("plus")) {
+    const numbers = query.match(/\d+/g);
+    if (numbers && numbers.length > 0) {
+      const sum = numbers.map(Number).reduce((a, b) => a + b, 0);
+      return sum.toString();
+    }
+    return "";
   }
 
   return "";
