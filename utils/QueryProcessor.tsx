@@ -191,5 +191,15 @@ export default function QueryProcessor(query: string): string {
     return "";
   }
 
+  if (query.toLowerCase().includes("anagram")) {
+    const words = query.match(/\b\w+\b/g);
+    if (words && words.length >= 2) {
+      const sorted = (word: string) => word.toLowerCase().split("").sort().join("");
+      const anagrams = words.filter((word) => sorted(word) === sorted(words[0]));
+      return anagrams.join(", ");
+    }
+    return "";
+  }
+
   return "";
 }
